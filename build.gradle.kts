@@ -15,4 +15,5 @@ dependencies {
         exclude(module="tink")
     }
     implementation("com.h2database:h2:2.4.240")
+    implementation("io.github.cdimascio:dotenv-java:3.2.0")
 }
