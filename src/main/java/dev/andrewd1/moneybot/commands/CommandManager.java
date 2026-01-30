@@ -26,6 +26,8 @@ public class CommandManager {
     private void registerCommands() {
         registerCommand(new Balance());
         registerCommand(new Baltop());
+        registerCommand(new Pay());
+
         registerCommand(new Coinflip());
     }
 

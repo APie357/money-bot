@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -36,6 +37,15 @@ public class Bot {
                                 GatewayIntent.MESSAGE_CONTENT,
                                 GatewayIntent.GUILD_MEMBERS
                         )
+                )
+                .disableCache(
+                        CacheFlag.ACTIVITY,
+                        CacheFlag.VOICE_STATE,
+                        CacheFlag.EMOJI,
+                        CacheFlag.STICKER,
+                        CacheFlag.CLIENT_STATUS,
+                        CacheFlag.ONLINE_STATUS,
+                        CacheFlag.SCHEDULED_EVENTS
                 )
                 .addEventListeners(new CommandListener())
                 .addEventListeners(new ListenerAdapter() {

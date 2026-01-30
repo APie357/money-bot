@@ -37,15 +37,26 @@ public class Balance extends BaseCommand {
 
         assert member != null;
 
+        if (member.getUser().isBot()) {
+            event.reply("You can't check the balance of a bot").setEphemeral(true).queue();
+            return;
+        }
+
         try {
-            var statement = Bot.instance.getDatabase().connection.prepareStatement("SELECT * FROM money WHERE userid = ? AND guildid = ?;");
+            var statement = Bot.instance.getDatabase().connection.prepareStatement("SELECT * FROM money WHERE userid = ? AND guildid = ? LIMIT 1;");
             statement.setLong(1, member.getIdLong());
             statement.setLong(2, Objects.requireNonNull(event.getGuild()).getIdLong());
             var result =  statement.executeQuery();
-            // TODO: tell amount
+            if (result.next()) {
+                var amount = result.getInt("amount");
+                event.reply(member.getAsMention() + " has `$" + amount + "`").queue();
+                return;
+            }
+
+            event.reply(member.getAsMention() + " couldn't be found in the database.").setEphemeral(true).queue();
         } catch (SQLException e) {
             event.reply("Internal SQL error").setEphemeral(true).queue();
+            e.printStackTrace();
         }
-        event.reply("The user " + member.getAsMention() + " has a balance of: `i dont fucking know`").queue();
     }
 }
