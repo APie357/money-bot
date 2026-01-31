@@ -21,7 +21,7 @@ public class CommandBaltop extends BaseCommand {
     @Override
     public void invoke(SlashCommandInteractionEvent event) {
         try {
-            var statement = Bot.instance.getDatabase().connection.prepareStatement("SELECT * FROM money WHERE guildid = ? AND interacted = true ORDER BY amount DESC LIMIT 10;");
+            var statement = Bot.instance.getDatabase().connection.prepareStatement("SELECT * FROM money WHERE guildid = ? ORDER BY amount DESC LIMIT 10;");
             statement.setLong(1, Objects.requireNonNull(event.getGuild()).getIdLong());
             var result =  statement.executeQuery();
 
