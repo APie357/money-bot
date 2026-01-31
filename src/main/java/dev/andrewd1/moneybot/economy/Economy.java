@@ -1,6 +1,5 @@
 package dev.andrewd1.moneybot.economy;
 
-import dev.andrewd1.moneybot.Bot;
 import dev.andrewd1.moneybot.data.Database;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -32,7 +31,6 @@ public class Economy {
     }
 
     public void setMoney(Member member, int amount) throws SQLException {
-//        var statement = db.connection.prepareStatement("UPDATE money SET amount = ?, interacted = true WHERE userid = ? AND guildid = ?;");
         var statement = db.connection.prepareStatement("MERGE INTO money (userid, guildid, amount) KEY (userid, guildid) VALUES (?, ?, ?);");
         statement.setLong(1, member.getIdLong());
         statement.setLong(2, member.getGuild().getIdLong());
@@ -41,7 +39,6 @@ public class Economy {
     }
 
     public void addMoney(Member member, int amount) throws SQLException {
-//        var statement = db.connection.prepareStatement("UPDATE money SET amount = amount + ? WHERE userid = ? AND guildid = ?;");
         setMoney(member, getMoney(member) + amount);
     }
 

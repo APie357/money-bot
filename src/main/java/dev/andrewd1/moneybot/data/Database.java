@@ -1,6 +1,5 @@
 package dev.andrewd1.moneybot.data;
 
-import dev.andrewd1.moneybot.Bot;
 import dev.andrewd1.moneybot.Globals;
 import net.dv8tion.jda.api.entities.Member;
 import org.slf4j.Logger;
@@ -20,17 +19,6 @@ public class Database {
 
         connection.createStatement().execute("CREATE TABLE IF NOT EXISTS money (userid BIGINT, guildid BIGINT, amount INTEGER)");
         logger.info("Created tables");
-    }
-
-    @Deprecated
-    public void initUsers() {
-        for (var guild : Bot.instance.getJDA().getGuilds()) {
-            logger.info("Initializing {}", guild.getName());
-            guild.loadMembers((Member member) -> {
-                if (member.getUser().isBot()) return;
-                initUser(member);
-            });
-        }
     }
 
     public void initUser(Member member) {
