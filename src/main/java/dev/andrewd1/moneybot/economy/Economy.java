@@ -6,8 +6,6 @@ import net.dv8tion.jda.api.entities.Member;
 import java.sql.SQLException;
 
 public class Economy {
-    public Economy() {}
-
     public int getMoney(Member member) throws SQLException {
         var statement = Bot.instance.getDatabase().connection.prepareStatement("SELECT * FROM money WHERE userid = ? AND guildid = ? LIMIT 1;");
         statement.setLong(1, member.getIdLong());

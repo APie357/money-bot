@@ -75,6 +75,7 @@ public class Bot {
     private void onReady(ReadyEvent event) {
         instance = this;
         database.initUsers();
+        logger.info("Ready");
     }
 
     public CommandManager getCommandManager() {
