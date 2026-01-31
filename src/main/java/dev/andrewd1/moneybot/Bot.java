@@ -26,11 +26,9 @@ public class Bot {
     private final CommandManager commandManager;
     private final Economy economy;
     private final Database database;
-    private final Logger logger;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public Bot() {
-        logger = LoggerFactory.getLogger(getClass());
-
         var env = Dotenv.load();
         logger.info("Loaded configuration");
 
@@ -69,12 +67,11 @@ public class Bot {
                 .build();
 
         commandManager = new CommandManager(jda);
-        economy = new Economy();
+        economy = new Economy(database);
     }
 
     private void onReady(ReadyEvent event) {
         instance = this;
-        database.initUsers();
         logger.info("Ready");
     }
 

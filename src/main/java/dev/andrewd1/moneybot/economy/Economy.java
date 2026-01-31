@@ -1,13 +1,24 @@
 package dev.andrewd1.moneybot.economy;
 
 import dev.andrewd1.moneybot.Bot;
+import dev.andrewd1.moneybot.data.Database;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.sql.SQLException;
 
 public class Economy {
+    private final Database db;
+    
+    public Economy(Database db) {
+        this.db = db;
+    }
+    
     public int getMoney(Member member) throws SQLException {
-        var statement = Bot.instance.getDatabase().connection.prepareStatement("SELECT * FROM money WHERE userid = ? AND guildid = ? LIMIT 1;");
+        if (member.getUser().isBot()) {
+            return -1;
+        }
+
+        var statement = db.connection.prepareStatement("SELECT * FROM money WHERE userid = ? AND guildid = ? LIMIT 1;");
         statement.setLong(1, member.getIdLong());
         statement.setLong(2, member.getGuild().getIdLong());
         var result =  statement.executeQuery();
@@ -16,23 +27,22 @@ public class Economy {
             return result.getInt("amount");
         }
 
-        return -1;
+        db.initUser(member);
+        return getMoney(member);
     }
 
     public void setMoney(Member member, int amount) throws SQLException {
-        var statement = Bot.instance.getDatabase().connection.prepareStatement("UPDATE money SET amount = ?, interacted = true WHERE userid = ? AND guildid = ?;");
-        statement.setInt(1, amount);
-        statement.setLong(2, member.getIdLong());
-        statement.setLong(3, member.getGuild().getIdLong());
+//        var statement = db.connection.prepareStatement("UPDATE money SET amount = ?, interacted = true WHERE userid = ? AND guildid = ?;");
+        var statement = db.connection.prepareStatement("MERGE INTO money (userid, guildid, amount) KEY (userid, guildid) VALUES (?, ?, ?);");
+        statement.setLong(1, member.getIdLong());
+        statement.setLong(2, member.getGuild().getIdLong());
+        statement.setInt(3, amount);
         statement.execute();
     }
 
     public void addMoney(Member member, int amount) throws SQLException {
-        var statement = Bot.instance.getDatabase().connection.prepareStatement("UPDATE money SET amount = amount + ?, interacted = true WHERE userid = ? AND guildid = ?;");
-        statement.setInt(1, amount);
-        statement.setLong(2, member.getIdLong());
-        statement.setLong(3, member.getGuild().getIdLong());
-        statement.execute();
+//        var statement = db.connection.prepareStatement("UPDATE money SET amount = amount + ? WHERE userid = ? AND guildid = ?;");
+        setMoney(member, getMoney(member) + amount);
     }
 
     public void removeMoney(Member member, int amount) throws SQLException {
