@@ -6,11 +6,15 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.Objects;
 
 public class CommandPay extends BaseCommand {
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     public CommandPay() {
         super(
                 "pay",
@@ -56,6 +60,7 @@ public class CommandPay extends BaseCommand {
             Bot.instance.getEconomy().addMoney(toPay, amount);
 
             event.reply(user.getAsMention() + " paid " + toPay.getAsMention() + " `$" + amount + "`").queue();
+            logger.info("{} paid {} ${}", user.getUser().getName(), toPay.getUser().getName(), amount);
         } catch (SQLException e) {
             event.reply("Internal SQL error").setEphemeral(true).queue();
             e.printStackTrace();

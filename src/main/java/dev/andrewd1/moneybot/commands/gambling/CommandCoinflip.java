@@ -8,11 +8,15 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.InteractionContextType;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.Objects;
 
 public class CommandCoinflip extends BaseCommand {
+    private final Logger logger =  LoggerFactory.getLogger(getClass());
+
     public CommandCoinflip() {
         super(
                 "coinflip",
@@ -70,7 +74,7 @@ public class CommandCoinflip extends BaseCommand {
 
         } catch (SQLException e) {
             event.reply("Internal error").setEphemeral(true).queue();
-            e.printStackTrace();
+            logger.trace("SQL Error: ", e);
         }
     }
 }

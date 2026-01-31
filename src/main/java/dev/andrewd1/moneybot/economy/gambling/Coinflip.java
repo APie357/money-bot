@@ -4,13 +4,17 @@ import dev.andrewd1.moneybot.Bot;
 import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.*;
 
 public class Coinflip {
     private static final HashMap<UUID, Coinflip> coinflips = new HashMap<>();
     private static final Random random = new Random();
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Member initiator;
     private final Member opponent;
@@ -19,7 +23,7 @@ public class Coinflip {
     public Button createButton() {
         var uuid = UUID.randomUUID();
         coinflips.put(uuid, this);
-        random.setSeed(uuid.hashCode());
+        random.setSeed(Instant.now().toEpochMilli());
         return Button.success(uuid.toString(), "Accept");
     }
 
@@ -41,12 +45,13 @@ public class Coinflip {
             coinflip.execute(event);
             coinflips.remove(uuid);
         } else {
-            event.reply("Couldn't find the coinflip. Did you already perform the bet?").setEphemeral(true).queue();
+            event.reply("Invalid coinflip. Did you already accept?").setEphemeral(true).queue();
         }
     }
 
     private void execute(ButtonInteractionEvent event) {
         var economy = Bot.instance.getEconomy();
+        logger.info("Executing coinflip for ${}: {} vs {}", bet, initiator.getUser().getName(), opponent.getUser().getName());
 
         try {
             if (!economy.hasEnoughMoney(initiator, bet)) {
@@ -69,7 +74,7 @@ public class Coinflip {
             event.reply(winner.getAsMention() + " won a coinflip against " + loser.getAsMention() + " for `$" + bet + "`!").queue();
         } catch (SQLException e) {
             event.reply("Internal error").queue();
-            e.printStackTrace();
+            logger.trace("SQL Error: ", e);
         }
     }
 }

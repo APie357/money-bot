@@ -14,6 +14,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 import java.util.EnumSet;
@@ -24,9 +26,14 @@ public class Bot {
     private final CommandManager commandManager;
     private final Economy economy;
     private final Database database;
+    private final Logger logger;
 
     public Bot() {
+        logger = LoggerFactory.getLogger(getClass());
+
         var env = Dotenv.load();
+        logger.info("Loaded configuration");
+
         try {
             database = new Database();
         } catch (SQLException e) {
