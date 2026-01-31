@@ -2,6 +2,8 @@ package dev.andrewd1.moneybot;
 
 import dev.andrewd1.moneybot.commands.CommandManager;
 import dev.andrewd1.moneybot.data.Database;
+import dev.andrewd1.moneybot.economy.Economy;
+import dev.andrewd1.moneybot.events.ButtonListener;
 import dev.andrewd1.moneybot.events.CommandListener;
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.JDA;
@@ -20,6 +22,7 @@ public class Bot {
     public static Bot instance;
     private final JDA jda;
     private final CommandManager commandManager;
+    private final Economy economy;
     private final Database database;
 
     public Bot() {
@@ -48,6 +51,7 @@ public class Bot {
                         CacheFlag.SCHEDULED_EVENTS
                 )
                 .addEventListeners(new CommandListener())
+                .addEventListeners(new ButtonListener())
                 .addEventListeners(new ListenerAdapter() {
                     @Override
                     public void onReady(@NotNull ReadyEvent event) {
@@ -58,6 +62,7 @@ public class Bot {
                 .build();
 
         commandManager = new CommandManager(jda);
+        economy = new Economy();
     }
 
     private void onReady(ReadyEvent event) {
@@ -75,6 +80,10 @@ public class Bot {
 
     public JDA getJDA() {
         return jda;
+    }
+
+    public Economy getEconomy() {
+        return economy;
     }
 
     static void main() {

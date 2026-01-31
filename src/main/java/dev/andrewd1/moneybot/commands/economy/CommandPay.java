@@ -10,8 +10,8 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import java.sql.SQLException;
 import java.util.Objects;
 
-public class Pay extends BaseCommand {
-    public Pay() {
+public class CommandPay extends BaseCommand {
+    public CommandPay() {
         super(
                 "pay",
                 Commands.slash("pay", "Pay someone money")
@@ -46,31 +46,14 @@ public class Pay extends BaseCommand {
 
 
         try {
-            var getUserMoney = Bot.instance.getDatabase().connection.prepareStatement("SELECT * FROM money WHERE userid = ? AND guildid = ? LIMIT 1;");
-            getUserMoney.setLong(1, user.getIdLong());
-            getUserMoney.setLong(2, Objects.requireNonNull(event.getGuild()).getIdLong());
-            var getUserMoneyResult = getUserMoney.executeQuery();
-            if (!getUserMoneyResult.next()) {
-                event.reply("You aren't in the database").setEphemeral(true).queue();
-                return;
-            }
+            var userMoney = Bot.instance.getEconomy().getMoney(user);
 
-            if (getUserMoneyResult.getInt("amount") - amount < 0) {
+            if (userMoney < amount) {
                 event.reply("You don't have enough money").setEphemeral(true).queue();
-                return;
             }
 
-            var updateUserMoney = Bot.instance.getDatabase().connection.prepareStatement("UPDATE money SET amount = amount - ? WHERE userid = ? AND guildid = ?;");
-            updateUserMoney.setInt(1, amount);
-            updateUserMoney.setLong(2, user.getIdLong());
-            updateUserMoney.setLong(3, Objects.requireNonNull(event.getGuild()).getIdLong());
-            updateUserMoney.execute();
-
-            var updateToPayMoney = Bot.instance.getDatabase().connection.prepareStatement("UPDATE money SET amount = amount + ? WHERE userid = ? AND guildid = ?;");
-            updateToPayMoney.setInt(1, amount);
-            updateToPayMoney.setLong(2, toPay.getIdLong());
-            updateToPayMoney.setLong(3, Objects.requireNonNull(event.getGuild()).getIdLong());
-            updateToPayMoney.execute();
+            Bot.instance.getEconomy().removeMoney(user, amount);
+            Bot.instance.getEconomy().addMoney(toPay, amount);
 
             event.reply(user.getAsMention() + " paid " + toPay.getAsMention() + " `$" + amount + "`").queue();
         } catch (SQLException e) {

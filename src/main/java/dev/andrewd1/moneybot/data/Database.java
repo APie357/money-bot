@@ -13,7 +13,7 @@ public class Database {
         connection = DriverManager.getConnection("jdbc:h2:./data");
         Runtime.getRuntime().addShutdownHook(new Thread(this::close));
 
-        connection.createStatement().execute("CREATE TABLE IF NOT EXISTS money (userid BIGINT, guildid BIGINT, amount INTEGER)");
+        connection.createStatement().execute("CREATE TABLE IF NOT EXISTS money (userid BIGINT, guildid BIGINT, interacted BOOLEAN, amount INTEGER)");
     }
 
     public void initUsers() {
@@ -27,7 +27,7 @@ public class Database {
 
     private void initUser(Member member, Guild guild) {
         try {
-            var statement = connection.prepareStatement("INSERT INTO money (userid, guildid, amount) SELECT ?, ?, ? WHERE NOT EXISTS ( SELECT 1 FROM money WHERE userid = ? AND guildid = ? );");
+            var statement = connection.prepareStatement("INSERT INTO money (userid, guildid, interacted, amount) SELECT ?, ?, false, ? WHERE NOT EXISTS ( SELECT 1 FROM money WHERE userid = ? AND guildid = ? );");
             statement.setLong(1, member.getIdLong());
             statement.setLong(2, guild.getIdLong());
             statement.setInt(3, 5000);

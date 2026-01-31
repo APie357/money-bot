@@ -1,7 +1,7 @@
 package dev.andrewd1.moneybot.commands;
 
 import dev.andrewd1.moneybot.commands.economy.*;
-import dev.andrewd1.moneybot.commands.gambling.Coinflip;
+import dev.andrewd1.moneybot.commands.gambling.CommandCoinflip;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
@@ -24,11 +24,11 @@ public class CommandManager {
     }
 
     private void registerCommands() {
-        registerCommand(new Balance());
-        registerCommand(new Baltop());
-        registerCommand(new Pay());
+        registerCommand(new CommandBalance());
+        registerCommand(new CommandBaltop());
+        registerCommand(new CommandPay());
 
-        registerCommand(new Coinflip());
+        registerCommand(new CommandCoinflip());
     }
 
     public void invoke(SlashCommandInteractionEvent event) {
