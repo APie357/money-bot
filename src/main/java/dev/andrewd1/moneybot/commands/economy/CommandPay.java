@@ -54,6 +54,7 @@ public class CommandPay extends BaseCommand {
 
             if (userMoney < amount) {
                 event.reply("You don't have enough money").setEphemeral(true).queue();
+                return;
             }
 
             Bot.instance.getEconomy().removeMoney(user, amount);
