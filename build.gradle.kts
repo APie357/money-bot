@@ -16,4 +16,5 @@ dependencies {
     }
     implementation("com.h2database:h2:2.4.240")
     implementation("io.github.cdimascio:dotenv-java:3.2.0")
+    implementation("ch.qos.logback:logback-classic:1.5.13")
 }
