@@ -12,7 +12,6 @@ import java.time.Instant;
 import java.util.*;
 
 public class Coinflip {
-    private static final HashMap<UUID, Coinflip> coinflips = new HashMap<>();
     private static final Random random = new Random();
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -21,10 +20,8 @@ public class Coinflip {
     private final int bet;
 
     public Button createButton() {
-        var uuid = UUID.randomUUID();
-        coinflips.put(uuid, this);
         random.setSeed(Instant.now().toEpochMilli());
-        return Button.success(uuid.toString(), "Accept");
+        return Bot.instance.getButtonManager().makeButton("Accept", this::execute);
     }
 
     public Coinflip(Member initiator, Member opponent, int bet) {
@@ -33,35 +30,24 @@ public class Coinflip {
         this.bet = bet;
     }
 
-    public static void executeIfExists(ButtonInteractionEvent event) {
-        var uuid = UUID.fromString(event.getCustomId());
-        if (coinflips.containsKey(uuid)) {
-            var coinflip = coinflips.get(uuid);
-            if (Objects.requireNonNull(event.getMember()).getIdLong() != coinflip.opponent.getIdLong()) {
-                event.reply("Only the opponent can accept a bet!").setEphemeral(true).queue();
-                return;
-            }
-
-            coinflip.execute(event);
-            coinflips.remove(uuid);
-        } else {
-            event.reply("Invalid coinflip. Did you already accept?").setEphemeral(true).queue();
+    private boolean execute(ButtonInteractionEvent event) {
+        if (Objects.requireNonNull(event.getMember()).getIdLong() != opponent.getIdLong()) {
+            event.reply("Only the opponent can accept a bet!").setEphemeral(true).queue();
+            return false;
         }
-    }
 
-    private void execute(ButtonInteractionEvent event) {
         var economy = Bot.instance.getEconomy();
         logger.info("Executing coinflip for ${}: {} vs {}", bet, initiator.getUser().getName(), opponent.getUser().getName());
 
         try {
             if (!economy.hasEnoughMoney(initiator, bet)) {
                 event.reply(initiator.getAsMention() + " doesn't have enough money!").queue();
-                return;
+                return false;
             }
 
             if (!economy.hasEnoughMoney(opponent, bet)) {
                 event.reply(opponent.getAsMention() + " doesn't have enough money!").queue();
-                return;
+                return false;
             }
 
             var flip = random.nextInt(100) % 2 == 0;
@@ -72,9 +58,12 @@ public class Coinflip {
             economy.removeMoney(loser, bet);
 
             event.reply(winner.getAsMention() + " won a coinflip against " + loser.getAsMention() + " for `$" + bet + "`!").queue();
+            return true;
         } catch (SQLException e) {
             event.reply("Internal error").queue();
             logger.trace("SQL Error: ", e);
         }
+
+        return false;
     }
 }

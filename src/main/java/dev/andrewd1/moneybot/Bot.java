@@ -1,5 +1,6 @@
 package dev.andrewd1.moneybot;
 
+import dev.andrewd1.moneybot.buttons.ButtonManager;
 import dev.andrewd1.moneybot.commands.CommandManager;
 import dev.andrewd1.moneybot.data.Database;
 import dev.andrewd1.moneybot.economy.Economy;
@@ -24,6 +25,7 @@ public class Bot {
     public static Bot instance;
     private final JDA jda;
     private final CommandManager commandManager;
+    private final ButtonManager buttonManager;
     private final Economy economy;
     private final Database database;
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -67,6 +69,7 @@ public class Bot {
                 .build();
 
         commandManager = new CommandManager(jda);
+        buttonManager = new ButtonManager();
         economy = new Economy(database);
     }
 
@@ -77,6 +80,10 @@ public class Bot {
 
     public CommandManager getCommandManager() {
         return commandManager;
+    }
+
+    public ButtonManager getButtonManager() {
+        return buttonManager;
     }
 
     public Database getDatabase() {
